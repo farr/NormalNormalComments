@@ -1,15 +1,24 @@
 % Define document class
-\documentclass[twocolumn]{aastex631}
+\documentclass[modern]{aastex631}
 \usepackage{showyourwork}
+
+\DeclareMathOperator{\Var}{Var}
+
+\newcommand{\cca}{Center for Computational Astrophysics, Flatiron Institute, New York NY 10010, USA}
+\newcommand{\sbu}{Department of Physics and Astronomy, Stony Brook University, Stony Brook NY 11794, USA}
 
 % Begin!
 \begin{document}
 
 % Title
-\title{An open source scientific article}
+\title{Comments on the Normal-Normal Hierarchical Model}
 
 % Author list
-\author{@farr}
+\author{Will M. Farr}
+\email{wfarr@flatironinstitute.org}
+\email{will.farr@stonybrook.edu}
+\affiliation{\cca}
+\affiliation{\sbu}
 
 % Abstract with filler text
 \begin{abstract}
@@ -31,26 +40,144 @@
 \section{Introduction}
 \label{sec:intro}
 
-Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
-Ut purus elit, vestibulum ut, placerat ac, adipiscing vitae, felis.
-Curabitur dictum gravida mauris, consectetuer id, vulputate a, magna.
-Donec vehicula augue eu neque, morbi tristique senectus et netus et.
-Mauris ut leo, cras viverra metus rhoncus sem, nulla et lectus vestibulum.
-Phasellus eu tellus sit amet tortor gravida placerat.
-Integer sapien est, iaculis in, pretium quis, viverra ac, nunc.
-Praesent eget sem vel leo ultrices bibendum.
-Aenean faucibus, morbi dolor nulla, malesuada eu, pulvinar at, mollis ac.
-Curabitur auctor semper nulla donec varius orci eget risus.
-Duis nibh mi, congue eu, accumsan eleifend, sagittis quis, diam.
-Duis eget orci sit amet orci dignissim rutrum.
+Here we examine the model for the hierarchical stacking analysis suggested in
+\citet{Isi2019} and currently employed to combine information from multiple
+gravitational wave detections in tests of general relativity
+\citep{TheLIGOScientificCollaboration2021}.  Recently \citet{Pacilio2023}
+suggested that the method may not converge to a consistent posterior, and
+pointed out that the frequentist coverage of the credible intervals from the
+method is not uniform in the limit of repeated ensembles of observations.  The
+first observation is in error, while the second is a consequence of the
+prior-population mismatch between the hierarchical model and the underlying
+repeated ensemble of observations.  \citet{Pacilio2023} note this latter
+explanation, but focus instead on bootstrap calibration of the credible level
+coverage; here we explore alternative prior choices that can improve the
+frequentist coverge of the Bayesian credible levels from this model.
 
-Nam dui ligula, fringilla a, euismod sodales, sollici- tudin vel, wisi.
-Morbi auctor lorem non justo, nam lacus libero, pretium at, lobortis vitae.
-Donec aliquet, tortor sed accumsan bibendum, erat ligula aliquet magna.
-Morbi ac orci et nisl hendrerit mollis, suspendisse ut massa, cras nec ante.
-Pellentesque a nulla cum sociis natoque penatibus et magnis dis parturient.
-Aliquam tincidunt urna, nulla ullamcorper vestibulum turpis.
-Pellentesque cursus luctus mauris \citep{Luger2021}.
+Undelying the approach of \citet{Isi2019} is an assumption that the deviation
+parameter of interest for each event $i$, $x_i$, is drawn from a normal
+distribution with mean $\mu$ and standard deviation $\sigma$:
+\begin{equation}
+    x_i \sim N\left( \mu, \sigma \right).
+\end{equation}
+This assumption can interpolate smoothly from the delta-function limit, with
+$\mu = \sigma \to 0$ where the parameter of interest is a universal constant
+that is the same for each event, to the case where the parameter of interest is
+dependent (in an unknown, or at least un-modeled) way on the other parameters of
+the event and therefore follows some (unknown, or un-modeled) population
+distribution.  In the latter case, and in the absence of selection effects, the
+$\mu$ and $\sigma$ population parameters will be related to the population mean
+and population standard deviation of the parameter of interest.
+
+While in practice the observation of the parameter of interest (and other
+parameters) for each event generates a complicated likelihood function that
+couples the deviation parameter of interest to other parameters describing the
+event (see, e.g., \citet{TheLIGOScientificCollaboration2021,Payne2023}), it is
+illuminating to consider a simplified observational model where each $x_i$ is
+observed with additive normal noise with standard deviation $\sigma_i$:
+\begin{equation}
+    x_{\mathrm{obs},i} \sim N\left( x_i , \sigma_i \right).
+\end{equation}
+This simplified model is analyzed in detail at the beginning of
+\citet{Pacilio2023}.  Note that we are not assuming ``heteroskedastic''
+observations; these comprise the special case where the observational
+uncertainties are all equal, $\sigma_i \equiv \sigma_{\mathrm{obs}}$.
+
+With this simplified observational model, the latent $x_i$ parameters can be
+integrated out to give the marginal likelihood for $\mu$ and $\sigma$ given an
+ensemble of observations:
+\begin{equation}
+    p\left( \left\{ x_{\mathrm{obs},i} \right\} \mid \mu, \sigma \right) = \prod_i N\left( x_{\mathrm{obs},i} \mid \mu, \sqrt{\sigma^2 + \sigma_i^2} \right).
+\end{equation}
+Here we show, contrary to the claims in \citet{Pacilio2023}, that the
+maximum-likelihood estimators for the parameters $\mu$ and $V \equiv \sigma^2$,
+which we denote $\hat{\mu}$ and $\hat{V}$, are unbiased and asymptotically
+unbiased, and therefore the likelihood function above converges weakly (check
+this, maybe converges in distribution or probability?  Or almost surely?) to a
+delta-function at the true parameters in the limit of an infinite ensemble of
+observations.
+
+The maximum likelihood estimator $\hat{\mu}$ for an ensemble of observations
+$\left\{ x_{\mathrm{obs},i} \right\}$ is 
+\begin{equation}
+    \label{eq:mu-hat}
+    \hat{\mu} = \frac{1}{W} \sum_i \frac{x_{\mathrm{obs},i}}{\sigma_i^2 + \hat{V}}, 
+\end{equation}
+where 
+\begin{equation}
+    W \equiv \sum_i \frac{1}{\sigma_i^2 + \hat{V}},
+\end{equation}
+and the maximum-likelihood estimator for the variance $\hat{V}$ is implicitly
+defined by 
+\begin{equation}
+    \label{eq:V-hat}
+    \sum_i \frac{\left( x_{\mathrm{obs},i} - \hat{\mu} \right)^2}{\left( \sigma_i^2 + \hat{V} \right)^2} = W.
+\end{equation}
+The estimator $\hat{\mu}$ is unbiased:
+\begin{equation}
+    \left\langle \hat{\mu} \right\rangle = \frac{1}{W} \sum_i \frac{\left\langle x_{\mathrm{obs},i} \right\rangle}{\sigma_i^2 + \hat{V}} = \frac{1}{W} \sum_i \frac{\mu}{\sigma_i^2 + \hat{V}} = \mu,
+\end{equation}
+and has variance 
+\begin{equation}
+    \Var\left( \hat{\mu} \right) = \frac{1}{W^2} \sum_i \frac{\Var\left( x_{\mathrm{obs},i} \right)}{\left( \sigma_i^2 + \hat{V} \right)^2} = \frac{1}{W^2} \sum_i \frac{\sigma_i^2 + V}{\left(\sigma_i^2 + \hat{V}\right)^2} = \frac{1}{W} + \mathcal{O}\left( \frac{1}{N} \right).
+\end{equation}
+with the convergence in the last relation following from the convergence of
+$\hat{V}$ to the true variance $V$ at leading order that we will demonstrate
+presently. 
+
+Taking expectations of both sides of the implicit Eq.~\eqref{eq:V-hat} defining
+$\hat{V}$, we find 
+\begin{equation}
+    \label{eq:implicit-V-hat}
+    W = \sum_i \frac{\left\langle \left( x_{\mathrm{obs},i} - \hat{\mu} \right)^2 \right\rangle}{\left( \sigma_i^2 + \hat{V} \right)^2}.
+\end{equation}
+Expanding the quantity in angle brackets, we find 
+\begin{equation}
+    \left\langle \left( x_{\mathrm{obs},i} - \hat{\mu} \right)^2 \right\rangle = \left\langle x_{\mathrm{obs},i}^2 \right\rangle - 2 \left\langle x_{\mathrm{obs},i} \hat{\mu} \right\rangle + \left\langle \hat{\mu}^2 \right\rangle.
+\end{equation}
+The first term is 
+\begin{equation}
+    \left\langle x_{\mathrm{obs},i}^2 \right\rangle = \mu^2 + \sigma_i^2 + V,
+\end{equation}
+the second term becomes 
+\begin{equation}
+    \left\langle x_{\mathrm{obs},i} \hat{\mu} \right\rangle = \frac{1}{W} \sum_{j\neq i} \frac{\mu^2}{\sigma_j^2 + \hat{V}} + \frac{1}{W} \frac{\mu^2 + \sigma_i^2 + V}{\sigma_i^2 + \hat{V}} = \mu^2 + \frac{1}{W} \frac{\sigma_i^2 + V}{\sigma_i^2 + \hat{V}},      
+\end{equation}
+and the third term becomes 
+\begin{equation}
+    \left\langle \hat{\mu}^2 \right\rangle = \frac{1}{W^2} \sum_{i,j} \frac{\left\langle x_{\mathrm{obs},i} x_{\mathrm{obs},j} \right\rangle }{\left( \sigma_i^2 + \hat{V} \right)\left( \sigma_j^2 + \hat{V}\right)} = \mu^2 + \frac{1}{W^2} \sum_j \frac{\sigma_j^2 + V}{\left( \sigma_j^2 + \hat{V} \right)^2}.
+\end{equation}
+Substituting in Eq.~\eqref{eq:implicit-V-hat}, we obtain 
+\begin{equation}
+    W = \sum_i \frac{1}{\left(\sigma_i^2 + \hat{V}\right)^2} \left( \sigma_i^2 + V - \frac{2}{W} \frac{\sigma_i^2 + V}{\sigma_i^2 + \hat{V}} + \frac{1}{W^2} \sum_j \frac{\sigma_j^2 + V}{\left( \sigma_j^2 + \hat{V} \right)^2} \right).
+\end{equation}
+If $\hat{V} = V$, this becomes 
+\begin{equation}
+    \left. W \right|_{\hat{V} = V} = \sum_i \frac{1}{\sigma_i^2 + V} - \left. \frac{1}{W} \right|_{\hat{V} = V} \sum_i \frac{1}{\left( \sigma_i^2 + V \right)^2}.
+\end{equation}
+Intuition about this complicated expression can be gathered by considering the
+homoskedastic case, where $\sigma_i \equiv s$ for all $i$.  Then this expression
+becomes 
+\begin{equation}
+    \frac{N}{s^2 + V} = \frac{N}{s^2 + V} - \frac{s^2 + V}{N}\frac{N}{\left( s^2 + V \right)^2} = \frac{N-1}{s^2 + V},
+\end{equation}
+indicating that the relation is satisfied up to order $1/N$ when the
+observational uncertainties are homoskedastic and $\hat{V} = V$; equivalently,
+we could say $\hat{V} = V + \mathcal{O}\left( 1/ N \right)$ in this case.
+Similarly, if the distribution of observational errors has enough finite moments
+so that we can write 
+\begin{equation}
+    W = \frac{N}{\left\langle \sigma_i^2 + \hat{V} \right\rangle} + \mathcal{O}\left( N^0 \right),
+\end{equation}
+then in the heteroskedastic case we have 
+\begin{equation}
+    \hat{V} = V + \mathcal{O}\left( \frac{1}{N} \right),
+\end{equation}
+so the maximum likelihood variance estimator is (asymptotically) unbiased.
+
+TODO: discussing calibration of the frequentist coverage of the Bayesian
+credible intervals.  And then take a shower becauese that is truly a horrible
+sentence.
 
 \bibliography{bib}
 
